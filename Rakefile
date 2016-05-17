@@ -5,8 +5,8 @@ require "bundler/setup"
 require "jekyll"
 
 # Change your GitHub reponame
-GITHUB_REPONAME    = "raghavgujjar.github.io"
-GITHUB_REPO_BRANCH = "master"
+GITHUB_REPONAME    = "raghavgujjar/raghavgujjar.github.io"
+GITHUB_REPO_BRANCH = "gh-pages"
 
 SOURCE = "source/"
 DEST   = "_site"
@@ -42,7 +42,7 @@ task :publish => [:generate] do
     system "git add ."
     message = "Site updated at #{Time.now.utc}"
     system "git commit -am #{message.inspect}"
-    system "git remote add origin git@github.com:#{GITHUB_REPONAME}.git"
+    system "git remote add origin https://github.com/#{GITHUB_REPONAME}.git"
     system "git push origin #{GITHUB_REPO_BRANCH} --force"
 
     Dir.chdir pwd
