@@ -1,0 +1,54 @@
+# Build settings
+permalink   : /blog/:year/:title/
+markdown    : kramdown
+highlighter : pygments
+gems: [jekyll-paginate]
+
+paginate: 3
+paginate_path: "/blog/page/:num/"
+comments: true
+
+source: source
+destination: _site
+sass:
+  sass_dir: _scss
+  style: compressed # expanded
+
+# SEO settings
+title: Raghavendra
+description: "Engineer working on Web Application/Front Tier"
+keywords: "Javascript, HTML, CSS, UI"
+url: http://raghavgujjar.github.io
+baseurl: ""
+# baseurl: ""
+
+# google_analytics: UA-52446115-1
+repo: http://github.com/raghavgujjar/raghavgujjar.github.io
+disqus_shortname: ""
+disqus_site_shortname: ""
+
+# Author settings
+author:
+  name      : Raghavendra
+  job       : Engineer
+  tagline   : "Knowledge = Learn + Teach"
+  thumb     : /images/author.jpg
+  email     : raghavendra.ravikumar@gmail.com
+  url       : http://raghavgujjar.github.io
+  github    : http://github.com/raghavgujjar
+  twitter   : https://twitter.com/r2_g1
+  #facebook  :
+  #linkedin  :
+
+# navbar pages
+navbar:
+  - slug: about
+    title: About
+  # - slug: resume
+  #   title: Resume
+  # - slug: skills
+  #   title: Skills
+  - slug: blog
+    title: Blog
+
+exclude: ["gulp", "node_modules", "bower", "bower_components", "config.rb", "src", "Gemfile", "Gemfile.lock", ".rvmrc", ".rbenv-version", "package.json", "gulpfile.js", "README.md", "Rakefile", "changelog.md"]
