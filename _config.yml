@@ -24,8 +24,8 @@ baseurl: ""
 
 # google_analytics: UA-52446115-1
 repo: http://github.com/raghavgujjar/raghavgujjar.github.io
-disqus_shortname: ""
-disqus_site_shortname: ""
+disqus_shortname: "raghavgujjar"
+disqus_site_shortname: "raghavgujjar"
 
 # Author settings
 author:
