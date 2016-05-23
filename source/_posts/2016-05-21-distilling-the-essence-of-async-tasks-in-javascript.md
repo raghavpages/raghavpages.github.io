@@ -32,7 +32,7 @@ http.get('http://raghavgujjar.github.io', function (res1) {
 {% endhighlight %}
 The code already seems hard to follow and becomes harder if you throw in your logic for each request. Imagine if you have to make multiple such requests, your code would start resembling a pyramid pointing to the right of your screen or the Hogwarts Stairways.
 
-There are many `async` libraries that help you work with the above mentioned use case. I plan to show how they are implemented and thereby ascertain if you are right by using them.
+There are many `async` libraries that help you work with the above mentioned use case. I plan to show how they are implemented and thereby ascertain if it makes sense to use them.
 
 As a example, consider two tasks. They are simple `setTimeout` functions. But, they help simulate time taken to complete a call in a tangible manner.
 {% highlight javascript %}
