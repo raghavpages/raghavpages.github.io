@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Distilling the essence of async tasks in Javascript"
-permalink: distilling-the-essence-of-async-tasks-in-javascript
+permalink: async-tasks-in-javascript
 date: 2016-05-21 15:45:28
 comments: true
 description: "Distilling the essence of async tasks in Javascript"
