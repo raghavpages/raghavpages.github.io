@@ -1,4 +1,4 @@
-$icons-family: 'end2end-icons';
+$icons-family: 'icomoon';
 $icons-path: '../fonts/';
 $icon-home: "\e900";
 $icon-comments: "\e902";
@@ -14,6 +14,7 @@ $icon-twitter-rounded: "\e90d";
 $icon-feed: "\e90e";
 $icon-github: "\e90f";
 $icon-linkedin: "\e905";
+$icon-envelop: "\e945";
 
 @font-face {
   font-family: $icons-family;
@@ -52,4 +53,4 @@ $icon-linkedin: "\e905";
 .icon-feed:before { content: $icon-feed; }
 .icon-github:before { content: $icon-github; }
 .icon-linkedin:before { content: $icon-linkedin; }
-
+.icon-envelop:before { content: $icon-envelop; }
