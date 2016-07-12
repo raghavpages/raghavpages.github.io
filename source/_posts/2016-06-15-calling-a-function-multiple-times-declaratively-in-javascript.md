@@ -59,7 +59,8 @@ If we needed to pass arguments to our original function, we can rewrite the impl
 {% highlight javascript %}
 Function.prototype.times = Function.prototype.times || function() { // check to see if this method was already attached
   var args = Array.prototype.slice.call(arguments);
-  var num = Number.isInteger(args[0]) ? args[0] : args[args.length - 1]; // If only number of repetitions is passed, the function has no arguments. Otherwise, treat the last argument as the count
+  var length = args.length;
+  var num = length && Number.isInteger(args[length - 1]) && args[length - 1] || 0; // Treat the last argument as the count. If no arguments the number of repetitions is zero
   for (var i = 0; i < num; i++) {
     this.apply(this, args.pop()); // Except the last argument, the rest of them are actual arguments to the function.
   }
