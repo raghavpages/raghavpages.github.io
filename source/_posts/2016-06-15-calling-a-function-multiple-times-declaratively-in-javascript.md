@@ -5,7 +5,7 @@ permalink: calling-a-function-multiple-times-declaratively-in-javascript
 date: 2016-06-15 22:44:40
 comments: true
 description: "Calling a function multiple times declaratively in Javascript"
-keywords: ""
+keywords: "declarative, function, javascript"
 categories:
 
 tags:

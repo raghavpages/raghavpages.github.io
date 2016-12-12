@@ -5,7 +5,7 @@ permalink: using-iterators-with-arrays
 date: 2016-12-06 23:33:39
 comments: true
 description: "Using iterators with arrays"
-keywords: ""
+keywords: "iterators, arrays, javascript"
 categories:
 
 tags:
