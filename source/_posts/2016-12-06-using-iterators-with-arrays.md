@@ -23,7 +23,7 @@ console.log(iterator.next().value); // l
 console.log(iterator.next().value); // l
 console.log(iterator.next().value); // o
 {% endhighlight %}
-The collection (`Array` in this case) has a method that returns an iterator object which has a method called `next()` that advances by one index in the collection each time it is called. The value at each index can be accessed using the property `value`. Also, there is another property that lets us know whether we've reached till the end of the collection, `done`. So, after the all the `console.log` statements in above example, if done is called,
+The collection (`Array` in this case) has a method that returns an iterator object which has a method called `next()` that advances by one index in the collection each time it is called. The value at each index can be accessed using the property `value`. Also, there is another property that lets us know whether we've reached till the end of the collection, `done`. So, after the all the `console.log` statements in above example, we can access done on next to indicate that there are no more elements to iterate over.
 {% highlight javascript %}
 console.log(it.next().done); // true
 {% endhighlight %}
@@ -34,7 +34,6 @@ function createIterator(arr) {
     var i = 0;
     return {
         next: function next() {
-            var returnVal;
             if (i < arr.length) {
                 return {
                     value: arr[i++],
