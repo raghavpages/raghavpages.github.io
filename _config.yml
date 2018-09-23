@@ -18,7 +18,7 @@ sass:
 title: Raghavendra
 description: "Raghavendra Ravikumar or Raghavendra Gujar is an Engineer who is currently working on the Front End of Web Applications. He is passionate about bringing new ideas to life. He believes knowledge can be gained and enhanced through the process of learning and teaching."
 keywords: "Javascript, HTML, CSS, UI"
-url: http://raghavgujjar.github.io
+url: https://raghavgujjar.github.io
 baseurl: ""
 # baseurl: ""
 
@@ -34,7 +34,7 @@ author:
   tagline   : "Knowledge = Learn + Teach"
   thumb     : /images/author.jpg
   email     : raghavendra.ravikumar@gmail.com
-  url       : http://raghavgujjar.github.io
+  url       : https://raghavgujjar.github.io
   github    : http://github.com/raghavgujjar
   twitter   : https://twitter.com/r2_g1
   contact   : https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform
