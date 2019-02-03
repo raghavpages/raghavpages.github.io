@@ -4,7 +4,7 @@ title: "Why 0.1 and 0.2 don't add up to 0.3?"
 date: 2018-10-13 11:09:34
 comments: true
 description: "Why 0.1 and 0.2 don't add up to 0.3?"
-keywords: "math,floating-point,numbers,arthmetic"
+keywords: "math, floating-point, numbers, arthmetic"
 categories:
 
 tags:
