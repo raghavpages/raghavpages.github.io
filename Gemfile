@@ -3,7 +3,7 @@
 source 'http://rubygems.org'
 
 group :development do
-  gem 'rake', '~>10.5'
+  gem 'rake', '~>12.3'
   gem 'sass', '~>3.4'
   gem 'jekyll', '~> 3'
   gem 'jekyll-paginate', group: [:jekyll_plugins]
