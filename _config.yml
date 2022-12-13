@@ -15,15 +15,15 @@ sass:
   style: compressed # expanded
 
 # SEO settings
-title: Raghavendra
+title: raghavpages
 description: "Raghavendra Ravikumar or Raghavendra Gujar is an Engineer who is currently working on the Front End of Web Applications. He is passionate about bringing new ideas to life. He believes knowledge can be gained and enhanced through the process of learning and teaching."
 keywords: "Javascript, HTML, CSS, UI"
-url: https://raghavgujjar.github.io
+url: https://raghavpages.github.io
 baseurl: ""
 # baseurl: ""
 
 google_analytics: UA-78703207-1
-repo: http://github.com/raghavgujjar/raghavgujjar.github.io
+repo: http://github.com/raghavpages/raghavpages.github.io
 disqus_shortname: "raghavgujjar"
 disqus_site_shortname: "raghavgujjar"
 
@@ -34,7 +34,7 @@ author:
   tagline   : "Knowledge = Learn + Teach"
   thumb     : /images/author.jpg
   email     : raghavendra.ravikumar@gmail.com
-  url       : https://raghavgujjar.github.io
+  url       : https://raghavpages.github.io
   github    : http://github.com/raghavgujjar
   twitter   : https://twitter.com/r2_g1
   contact   : https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform

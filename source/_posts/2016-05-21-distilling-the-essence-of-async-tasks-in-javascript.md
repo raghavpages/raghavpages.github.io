@@ -12,7 +12,7 @@ tags:
 ---
 One of the things you have deal with when migrating to `node.js` from other server side platforms is code that executes asynchronously. What do I mean by asynchronous? When reading a file or making a request over a network we call a function and after the fetching of the file or completion of request, it is handled in a callback function passed as a parameter to the function. Here is an example:
 {% highlight javascript %}
-http.get('http://raghavgujjar.github.io', function (res) {
+http.get('http://raghavpages.github.io', function (res) {
   console.log('Status: ' + res.statusCode);
 }).on('error', function (e) {
   console.log('Error:' + e.message);
@@ -20,8 +20,8 @@ http.get('http://raghavgujjar.github.io', function (res) {
 {% endhighlight %}
 This is pretty straight forward for one request. However, if there is a need to make another request because your final result depended on the both the requests, you would have to do something like:
 {% highlight javascript %}
-http.get('http://raghavgujjar.github.io', function (res1) {
-  http.get('http://raghavgujjar.github.io/about', function (res2) {
+http.get('http://raghavpages.github.io', function (res1) {
+  http.get('http://raghavpages.github.io/about', function (res2) {
       console.log('Status 1: ' + res1.statusCode);
       console.log('Status 2: ' + res2.statusCode);
     });
