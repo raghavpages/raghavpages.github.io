@@ -4,7 +4,7 @@ title: "Remembering to understand about state"
 date: 2021-06-06 23:01:12
 comments: true
 description: "Remembering to understand about state"
-keywords: ""
+keywords: "state, memory, spring, switch, magnet"
 categories:
 
 tags:

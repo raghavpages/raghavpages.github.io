@@ -4,7 +4,7 @@ title: "Reasoning about logic"
 date: 2022-03-03 22:59:06
 comments: true
 description: "Reasoning about logic"
-keywords: ""
+keywords: "and, or, logic, truth table, boolean"
 categories:
 
 tags:

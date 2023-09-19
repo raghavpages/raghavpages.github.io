@@ -4,7 +4,7 @@ title: "The coming together of Map, Filter and Reduce as higher order functions"
 date: 2019-02-03 00:49:56
 comments: true
 description: "The coming together of Map, Filter and Reduce as higher-order functions"
-keywords: ""
+keywords: "map, filter, reduce, functions, higher-order"
 categories:
 
 tags:

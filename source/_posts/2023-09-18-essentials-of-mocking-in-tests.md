@@ -4,7 +4,7 @@ title: "Essentials of mocking in tests"
 date: 2023-09-18 09:23:00
 comments: true
 description: "Essentials of mocking in tests"
-keywords: ""
+keywords: "mocks, unit tests, code coverage, implementation, call count, arguments"
 categories:
 
 tags:
