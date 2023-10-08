@@ -23,7 +23,7 @@ baseurl: ""
 # baseurl: ""
 
 google_analytics: UA-78703207-1
-repo: http://github.com/raghavpages/raghavpages.github.io
+repo: https://github.com/raghavpages/raghavpages.github.io
 disqus_shortname: "raghavgujjar"
 disqus_site_shortname: "raghavgujjar"
 
@@ -35,8 +35,8 @@ author:
   thumb     : /images/author.jpg
   email     : raghavendra.ravikumar@gmail.com
   url       : https://raghavpages.github.io
-  github    : http://github.com/raghavgujjar
-  twitter   : https://twitter.com/r2_g1
+  github    : https://github.com/raghavgujjar
+  twitter   : https://twitter.com/raghav_social
   contact   : https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform
   #facebook  :
   #linkedin  :
