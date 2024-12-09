@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Remembering to understand about state</title>
+    <meta name="description" content="We all start our programming journey by writing a simple “Hello World” program. Though it appears simple enough, there is still something going on that makes...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2021/remembering-to-understand-about-state/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">Remembering to understand about state</h1>
+      <p class="post-meta">Jun 6, 2021</p>
+    </header>
+
+    <div class="post-content">
+      <p>We all start our programming journey by writing a simple “Hello World” program. Though it appears simple enough, there is still something going on that makes it happen. Let’s break it down. Inside the brackets of a “function” of a programming language we provide the words “Hello world” and once this is run, it prints only those two words ignoring rest of the characters in the program. If programming is about giving instructions and asking the computer to perform them on our behalf, we just managed to make the computer repeat back something we gave it. But if it has to repeat what we just asked, it still needs to be able to remember it even if it is for a very short amount of time. When children learn words, we ask them to repeat back what we just told them. In the initial stages, even repeating things back has a few challenges because they first have to remember the word and then put it back together while speaking and both these processes take time to perfect in a developing brain. Even for a computer, it may seem simple now as they have advanced greatly but, still the process is the same. The words have to be received and put back the same way when displayed on a screen. Remembering things on our behalf is a huge part of programming and has helped us delegate a lot of tasks that we would be doing manually ourselves.</p>
+
+<p><img src="/images/state/helloWorld.gif" alt="Hello World" /></p>
+
+<p>So, this remembering something for a very short time is explained by what is called “state” in computer engineering. The concept is simple because a computer only understands binary and in this system there is either a “0” or “1”. These can be considered as states. There is a third state but, we can discuss that later. When we need light, we operate a switch and this switch is either in an “off” state or an “on” state. It is the same as “0” or “1”, only different way of expressing the same idea. When the switch is “on”, the room is bathed in the light of the bulb and when it is “off”, it is in darkness provided there are no windows or other light sources. More than remembering, it is about knowing where things are and we mentally keep track, when it is dark, turn on the switch for light to be shown and when it is time to leave the room, turn off the switch. These are simple things to keep track off but sometimes, we are not able to keep track of such simple things, we forget to turn off the switch before we leave the room. Sometimes we even forget to close the door when we enter or leave the room.</p>
+
+<p>However, delegating a task to something that can remember it on our behalf takes away the need to keep track of it ourselves. The solution is to try and build something and we can start with something simple and easy to visualize because we just want to get introduced to the foundations. We’ve all seen doors closing by itself after it is flung open. How is it happening? There is a spring, part of the door’s hinge assembly which enables this to happen. Springs when stretched or compressed can return back to their original position. So, it is able to remember that position to be able to return to it. For a short amount of time, it stores the energy that is applied to it when stretched or compressed and when released, this energy is also released and it returns to its original shape or state. Let’s see how we can use the spring to operate a bulb and where it leads us.</p>
+
+<p>Consider a bulb connected to a power source via a switch. When the switch is closed, the bulb is “ON” and the opposite when the the switch is open. However, the closing and opening of the switch is controlled by a spring. Let’s say when the switch is open, the spring is compressed. So, when the spring returns to its natural state, the switch is closed. Hence when the switch is opened and released, it closes automatically using the energy stored when it was opened and the light turns on.</p>
+
+<p><img src="/images/state/First.png" alt="First" /></p>
+
+<p>With this arrangement however, if the switch has to be kept open for the bulb to be OFF, it has to be held in that position by keeping the spring compressed. Even if the switch can be fastened to something, there is manual force required to release it from this position to turn it ON. Can that force come from elsewhere? Yes, we can look towards magnets to provide a force that can reduce our intervention. Mangetic materials have a property that when two of such materials are brought together they either attract or repel each other. It depends on what sides are brought together. They are referred to as north and south poles of the magnet. Like poles repel and opposite poles attract. So the end of the switch could be attached to a magnet and we can have another magnet repel it when we need the switch to be OFF. The magnets should have enough repelling force to counter the spring’s tendancy to close the switch. When the other magnet is moved away, due to spring action, the switch will close and the bulb will be ON. To make things a bit easier, the magnet can be mounted on a wheel. By getting the like poles of the magnet on the wheel and the switch magnet closer, the bulb turns off and getting the wheel move by quarter of a rotation, keeps them away which turns on the bulb again. Constant rotation of the wheel produces periodic transition between the ON and OFF states of the bulb.</p>
+
+<p><img src="/images/state/Second.png" alt="Second" /></p>
+
+<p>To have more range of states than just ON or OFF, we need to add another similar arrangement of a switch, magnet and a bulb. The same magnet mounted on a wheel can be used to influence both the switches. Say, the magnet on the switches is such that it is repelled by north pole. Now, if the north of the magnet on the wheel is towards the first switch, then the first switch is open and bulb off. Since, the south pole is closer to the second switch, there is no repelling force, so the second swich stays closed and bulb is off. So we have OFF-ON state. Now if the wheel rotates 90 degrees, the magnet on the wheel has no influence on the switches and both swiches are closed now and both the bulbs are on. So we have ON-ON state. Now, if wheel rotates a further 90 degrees, the north pole of the magnet is closer to the second switch causing the magnet on it to repel. So the second switch is off. The first switch stays on because the south pole is closer to it keeping it closed. That means we now have an ON-OFF state. So, we’ve got 3 possible states. Both switches being OFF doesn’t contribute much because there is no power in this arrangement. These different states can each mean to be an instruction that be used to program something.</p>
+
+<p><img src="/images/state/Third.png" alt="Third" /></p>
+
+<p>If we have more number of switches, then more number of states is possible. This arrangement is intended to visualize a very simplified form of a digital circuit. A highly complex form is inside CPUs of microprocessors that are the brains of today’s computers. The springs that store energy for a little while are like transistors which are capable of holding a state briefly. The rotation of the wheel which produces periodic change in state is like the oscillator that provides periodic changes in electrical signals to the mircoprocessor. The transistors and oscillators operate extremely fast compared to the spring and wheels as there aren’t really any moving parts. They are all electronic. This means everything is controlled by electrons and their movement as opposed to visible mechanical movement used in this article to explain the concept. Electrons travel blindingly fast. So, the computers of today are extremely fast by completely excluding any form of mechanical movement. Also without any mechanical parts, the path towards miniaturization grows exponentially.</p>
+
+<p>On the point about the third state, the third state in digital circuits usually refers to a high impedence state. This is used when a part of a circuit doesn’t have any influence on the rest of the circuit like a switch won’t contribute to the overall combination of states at that time.</p>
+
+<p>So computer programs are essentially a set of instructions where each instruction could be thought of as a combination of these ON-OFF states. For example, if we had such a combination of 3 switch-springs, then 1 0 0(ON-OFF-OFF) state could mean start the program. These combinations of states is also used to represent the value the number we want to evaluate on. By having a combination of more number of states, we can have more range of instructions or represent larger numbers. Usually the number of different instructions is a much smaller set as they are sufficient to write programs which are able to accomplish what we intend. For example, we can write a program that turns the bulb on when a person enters the room by it listening to a motion sensor and then turn it off when there is no motion detected after some time. This usually happens when the person leaves the room. So there is sequence of instructions used to achieve this and calculations to count the time down. State plays a key role in keeping track of all of this.</p>
+
+<p>In summary, by being able to transfer certain things that we try to keep track of, to things that can hold state like springs and then transistors, we have built programmable devices that can do a lot of things that we are capable of lot faster. This has allowed us to make enormous progress in a shorter time scale leading to faster development of technologies that we see today.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2021/remembering-to-understand-about-state/';
+        this.page.identifier = '2021-06-06 16:01:12';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>

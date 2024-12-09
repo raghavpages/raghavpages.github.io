@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Chaining middleware in express routes</title>
+    <meta name="description" content="Express.js is a highly popular framework for writing server-side code for web applications in node.js. It is a lightweight framework that simplifies HTTP req...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2018/chaining-middleware-in-express-routes/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">Chaining middleware in express routes</h1>
+      <p class="post-meta">Sep 16, 2018</p>
+    </header>
+
+    <div class="post-content">
+      <p>Express.js is a highly popular framework for writing server-side code for web applications in node.js. It is a lightweight framework that simplifies <code class="language-plaintext highlighter-rouge">HTTP</code> request and response handling from the point the server starts and listens, to sending the response. It is popular among those who have just started writing their first node.js application and among those writing their nth application and want to do it in a quick and easy way. Of course, application generators make it easy to bootstrap an application. Still, the pattern it exposes is intuitive to understand and convenient to write that allows reading requests in any format and respond in any format through pluggable libraries that manage these. It is the support for this that makes it a powerful framework to use. It is the middleware pattern exposed through <code class="language-plaintext highlighter-rouge">app.use</code> as follows:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>It expects a <strong>function</strong> that has arguments <code class="language-plaintext highlighter-rouge">req</code>, <code class="language-plaintext highlighter-rouge">res</code>, <code class="language-plaintext highlighter-rouge">next</code>. The <code class="language-plaintext highlighter-rouge">req</code> and <code class="language-plaintext highlighter-rouge">res</code> are for it to pass the request and response objects. The <code class="language-plaintext highlighter-rouge">next</code> argument is a <strong>function</strong> <code class="language-plaintext highlighter-rouge">callback</code> that allows it to proceed to the next middleware if there are any. So, in a generated express application, in the index file used by the server startup script, there may be many <code class="language-plaintext highlighter-rouge">app.use</code> statements to chain these middleware functions. For example, a small part may look like this:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">bodyParser</span><span class="p">.</span><span class="nx">urlencoded</span><span class="p">());</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cookieParser</span><span class="p">());</span></code></pre></figure>
+
+<p>The first one parses requests in the format <code class="language-plaintext highlighter-rouge">application/x-www-form-urlencoded</code> and populates the data in <code class="language-plaintext highlighter-rouge">req.body</code>. The second one parses the cookies in the request headers and populates them in <code class="language-plaintext highlighter-rouge">req.cookies</code>. Because the pattern propagates the request object across the middleware chain, each middleware is able to append properties to the request object.</p>
+
+<p>It can also run a middleware type function only for a particular <code class="language-plaintext highlighter-rouge">URL</code> path. The usage goes like:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="nx">index</span><span class="p">);</span></code></pre></figure>
+
+<p>The <code class="language-plaintext highlighter-rouge">index</code> can just be a function with the same signature, that is, having arguments <code class="language-plaintext highlighter-rouge">req</code>, <code class="language-plaintext highlighter-rouge">res</code> and <code class="language-plaintext highlighter-rouge">next</code>. Or, it can be an exported function from another file that uses <code class="language-plaintext highlighter-rouge">express.Router()</code>. The purpose is to process functions required for requests only for particular <code class="language-plaintext highlighter-rouge">HTTP</code> methods. For example the index file can look like:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">router</span><span class="p">;</span></code></pre></figure>
+
+<p>So, the above middleware type function will only be called for requests to the base path <code class="language-plaintext highlighter-rouge">/</code> of method <code class="language-plaintext highlighter-rouge">GET</code>. It also permits chaining multiple middleware functions because the implementation of same pattern is continued here, allowing functions with arguments <code class="language-plaintext highlighter-rouge">req</code>, <code class="language-plaintext highlighter-rouge">res</code> and <code class="language-plaintext highlighter-rouge">next</code> to be passed. This is what it may look like:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">router</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="nx">middleware1</span><span class="p">,</span> <span class="nx">middleware2</span><span class="p">);</span></code></pre></figure>
+
+<p>Let’s think about how to implement such a chaining. Assuming that <code class="language-plaintext highlighter-rouge">req</code> and <code class="language-plaintext highlighter-rouge">res</code> is already processed and available and <code class="language-plaintext highlighter-rouge">URL</code> <code class="language-plaintext highlighter-rouge">path</code> specific execution is already taken care, we just need to focus on how to achieve the chaining. <code class="language-plaintext highlighter-rouge">router.get</code> is essentially a <strong>function</strong> whose first argument is of type <strong>string</strong>. The remaining arguments can be one or more because the pattern permits chaining any number of <code class="language-plaintext highlighter-rouge">middleware</code> functions. Now that the <strong>rest parameter</strong> syntax is available and implemented in the latest JavaScript engines, the function can be defined as,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="kd">get</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">...</span><span class="nx">middleware</span><span class="p">)</span> <span class="p">{}</span></code></pre></figure>
+
+<p>This allows passing indefinite number of arguments and represent them as an <code class="language-plaintext highlighter-rouge">array</code>. Now, it’s about taking all of this and implement the chaining depending on whether, <code class="language-plaintext highlighter-rouge">next</code> is called in that respective middleware. A rudimentary implementation would look something like:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="kd">get</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">...</span><span class="nx">middleware</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="p">{};</span> <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="p">{};</span> <span class="kd">var</span> <span class="nx">next</span><span class="p">;</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kd">function</span> <span class="nx">next</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">middleware</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">function</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">middleware</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Basically, the calling of <code class="language-plaintext highlighter-rouge">next</code> in one of the middleware means, the <code class="language-plaintext highlighter-rouge">next</code> middleware function will be called within it. So, we just increment to the next middleware and call it inside <code class="language-plaintext highlighter-rouge">next</code> and continue passing <code class="language-plaintext highlighter-rouge">next</code>. Since, we are also calling the first middleware, <code class="language-plaintext highlighter-rouge">next</code> needs to be explicitly called within this <code class="language-plaintext highlighter-rouge">function</code>’s implementation at the end. So, when we do,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">middleware1</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Inside middleware 1</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nx">next</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">middleware2</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Inside middleware 2</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="nx">middleware1</span><span class="p">,</span> <span class="nx">middleware2</span><span class="p">);</span></code></pre></figure>
+
+<p>This will be the output:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Inside middleware 1
+Inside middleware 2</code></pre></figure>
+
+<p>If you still are attached to the <code class="language-plaintext highlighter-rouge">ES5</code> world, we still have access to the arguments objects and have to apply a common trick revealed by advanced JavaScript programmers who are not magicians because they’ve revealed their trick. So the implementation in <code class="language-plaintext highlighter-rouge">ES5</code> would be:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="kd">get</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="p">{};</span> <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="p">{};</span> <span class="kd">var</span> <span class="nx">next</span><span class="p">;</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">argsArray</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span> <span class="c1">// the trick</span>
+    <span class="nx">argsArray</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">middleware</span> <span class="o">=</span> <span class="nx">argsArray</span><span class="p">;</span>
+
+    <span class="kd">function</span> <span class="nx">next</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">middleware</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">function</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">middleware</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We can also get rid of maintaining the count of <code class="language-plaintext highlighter-rouge">i</code> by using the <code class="language-plaintext highlighter-rouge">shift</code> method of the <strong>Array</strong> object.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="kd">get</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">...</span><span class="nx">middleware</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="p">{};</span> <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="p">{};</span> <span class="kd">var</span> <span class="nx">next</span><span class="p">;</span> <span class="kd">var</span> <span class="nx">func</span><span class="p">;</span>
+
+    <span class="kd">function</span> <span class="nx">next</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">func</span> <span class="o">=</span> <span class="nx">middleware</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">func</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">function</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">func</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>But, now we are maintaining a temporary <code class="language-plaintext highlighter-rouge">func</code> variable to store the shifted function.</p>
+
+<p>We now have a fair idea of how we can chain middleware with a simple few lines of code. <code class="language-plaintext highlighter-rouge">Express</code> also supports passing <code class="language-plaintext highlighter-rouge">err</code> as the first argument instead of <code class="language-plaintext highlighter-rouge">req</code>. So there will be four arguments <code class="language-plaintext highlighter-rouge">err</code>, <code class="language-plaintext highlighter-rouge">req</code>, <code class="language-plaintext highlighter-rouge">res</code> and <code class="language-plaintext highlighter-rouge">next</code> to the function. This is normally used for error handling when there is a short circuit in the chaining. The short circuit can be achieved by passing the <code class="language-plaintext highlighter-rouge">err</code> object to <code class="language-plaintext highlighter-rouge">next</code> like <code class="language-plaintext highlighter-rouge">next(err)</code>. We just need to incorporate the checks for <code class="language-plaintext highlighter-rouge">err</code> in <code class="language-plaintext highlighter-rouge">next</code> in our implementation to achieve the short circuit behavior. We can even write asynchronous functions in each middleware and call <code class="language-plaintext highlighter-rouge">next</code> in the callback. But, being able to chain pluggable middleware functions during the journey of the request makes <code class="language-plaintext highlighter-rouge">express</code> a scalable, powerful and easy to use framework to start writing and getting out server-side code of <code class="language-plaintext highlighter-rouge">node.js</code> applications, quickly.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2018/chaining-middleware-in-express-routes/';
+        this.page.identifier = '2018-09-16 16:26:43';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>

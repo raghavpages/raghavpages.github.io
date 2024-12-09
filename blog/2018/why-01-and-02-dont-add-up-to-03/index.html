@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Why 0.1 and 0.2 don't add up to 0.3?</title>
+    <meta name="description" content="It is famously talked about in JavaScript books and the community that the number type is not very reliable and the example most commonly used to support suc...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2018/why-01-and-02-dont-add-up-to-03/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">Why 0.1 and 0.2 don't add up to 0.3?</h1>
+      <p class="post-meta">Oct 13, 2018</p>
+    </header>
+
+    <div class="post-content">
+      <p>It is famously talked about in JavaScript books and the community that the <code class="language-plaintext highlighter-rouge">number</code> type is not very reliable and the example most commonly used to support such a conclusion is <code class="language-plaintext highlighter-rouge">0.1 + 0.2 !== 0.3</code>. How could a programming language that is arguably the most widely used, error out on something so obvious and intuitive? The reason is beyond the capabilities and limitations of this language before we start thinking “have they really screwed up on this one too?”. You may think, “at least, my money is safe because this language is mostly used only in the browser”. Don’t mean to make you feel insecure about your money but, this language has already made huge inroads on the server-side. Also, there are many applications now doing computations on the browser and this problem is not just limited to one language. Let’s look at this example in <code class="language-plaintext highlighter-rouge">C++</code>, a language used in most JavaScript Engine implementations,</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">a</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">c</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">;</span>
+    <span class="cm">/*Printing up to 56 decimal places*/</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"a is %0.56f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"b is %0.56f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Sum is %0.56f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"c is %0.56f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>JavaScript has only one <code class="language-plaintext highlighter-rouge">number</code> type which uses 64-bit double precision floating-point. The <code class="language-plaintext highlighter-rouge">printf</code> statements in the above code is expanding out the number to as many decimal places possible. This will give visibility to how the number is actually stored. This is the output:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">a is 0.10000000000000000555111512312578270211815834045410156250
+b is 0.20000000000000001110223024625156540423631668090820312500
+Sum is 0.30000000000000004440892098500626161694526672363281250000
+c is 0.29999999999999998889776975374843459576368331909179687500</code></pre></figure>
+
+<p>It is the same result in JavaScript.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="mf">0.1</span><span class="p">.</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">56</span><span class="p">));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="mf">0.2</span><span class="p">.</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">56</span><span class="p">));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">((</span><span class="mf">0.1</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">).</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">56</span><span class="p">));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="mf">0.3</span><span class="p">.</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">56</span><span class="p">));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">===</span> <span class="mf">0.3</span><span class="p">);</span></code></pre></figure>
+
+<p>Output:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">0.10000000000000000555111512312578270211815834045410156250
+0.20000000000000001110223024625156540423631668090820312500
+0.30000000000000004440892098500626161694526672363281250000
+0.29999999999999998889776975374843459576368331909179687500
+<span class="nb">false</span></code></pre></figure>
+
+<p>What? What are all those digits doing in the end? How did they appear? They are the ones messing up the results. It is even misrepresenting <code class="language-plaintext highlighter-rouge">0.3</code> as <code class="language-plaintext highlighter-rouge">0.2999...</code>. The reason is computers store numbers in binary. When it comes to storing integers, it has no trouble. Decimal <code class="language-plaintext highlighter-rouge">0</code> and <code class="language-plaintext highlighter-rouge">1</code> is just <code class="language-plaintext highlighter-rouge">0</code> and <code class="language-plaintext highlighter-rouge">1</code> in binary as well. Bigger numbers need more binary digits or bits. Decimal <code class="language-plaintext highlighter-rouge">2</code> is <code class="language-plaintext highlighter-rouge">10</code>, <code class="language-plaintext highlighter-rouge">3</code> is <code class="language-plaintext highlighter-rouge">11</code>, <code class="language-plaintext highlighter-rouge">4</code> is <code class="language-plaintext highlighter-rouge">100</code> etc. It uses the positions of the <code class="language-plaintext highlighter-rouge">0</code>s and <code class="language-plaintext highlighter-rouge">1</code>s in the bit to get the decimal representation. Since <code class="language-plaintext highlighter-rouge">1</code> is the maximum single digit in binary, higher its bit position, higher is its value. Its contribution to the number in decimal is higher. Also, more the number of <code class="language-plaintext highlighter-rouge">1</code>s, the number’s value is also more. For example, in <code class="language-plaintext highlighter-rouge">10</code>, <code class="language-plaintext highlighter-rouge">1</code> is at the position <code class="language-plaintext highlighter-rouge">1</code> from right assuming positions are counted from <code class="language-plaintext highlighter-rouge">0</code>. That is why it represents decimal <code class="language-plaintext highlighter-rouge">2</code>. Its value is calculated as <code class="language-plaintext highlighter-rouge">1*2**1 + 0*2**0</code>. The bit’s value is multiplied with a power of <code class="language-plaintext highlighter-rouge">2</code> of the position in which it is in and these results at every position are added together to get the decimal value. This is a standard formula to convert numbers from one system to the other. So, it is able to represent every integer and the number of integers it can represent is limited by the number of bit positions allowed by the computer.</p>
+
+<p>So, what is the problem with floating-point numbers? <code class="language-plaintext highlighter-rouge">0.1</code> in decimal is <code class="language-plaintext highlighter-rouge">1/10</code> or <code class="language-plaintext highlighter-rouge">10^-1</code>. So, what would <code class="language-plaintext highlighter-rouge">0.1</code> be in binary? Since, everything is in powers of two in binary, and positions after the decimal have negative powers, <code class="language-plaintext highlighter-rouge">0.1</code> would be <code class="language-plaintext highlighter-rouge">2**-1</code>. And, if we convert it by computing the power, it is <code class="language-plaintext highlighter-rouge">1/2</code> or <code class="language-plaintext highlighter-rouge">0.5</code> in decimal. <strong>Not</strong> <code class="language-plaintext highlighter-rouge">0.1</code>. Similarly <code class="language-plaintext highlighter-rouge">0.01</code> would be <code class="language-plaintext highlighter-rouge">2**-2</code> or <code class="language-plaintext highlighter-rouge">1/4</code> or <code class="language-plaintext highlighter-rouge">0.25</code>. And, <code class="language-plaintext highlighter-rouge">0.001</code> would be <code class="language-plaintext highlighter-rouge">2**-3</code> or <code class="language-plaintext highlighter-rouge">1/8</code> or <code class="language-plaintext highlighter-rouge">0.125</code>. Now, it is getting closer to <code class="language-plaintext highlighter-rouge">0.1</code>. <code class="language-plaintext highlighter-rouge">0.0001</code> is <code class="language-plaintext highlighter-rouge">0.0625</code>. It has become smaller but, to accurately represent <code class="language-plaintext highlighter-rouge">0.1</code>, we seem to need more bits. Lets try <code class="language-plaintext highlighter-rouge">0.00011</code>. It is <code class="language-plaintext highlighter-rouge">0.09375</code>. This is much closer to <code class="language-plaintext highlighter-rouge">0.1</code>. But not exactly <code class="language-plaintext highlighter-rouge">0.1</code> yet. So, it is not so straightforward representing floating-point numbers on a computer. Computers don’t even understand the decimal point. We need a more formal representation such as the IEEE 754 standard which is used in almost all computers now. It has bits allocated to indicate just the position of the decimal point. It uses scientific notation. This standard has more bits (52 bits) to represent <code class="language-plaintext highlighter-rouge">0.1</code> more precisely. But, not enough to represent it accurately. <code class="language-plaintext highlighter-rouge">0.1</code> is <code class="language-plaintext highlighter-rouge">1/10</code> or <code class="language-plaintext highlighter-rouge">1/1010</code> in binary. If we do the long division, we get <code class="language-plaintext highlighter-rouge">0.0001100110011...</code>. So, <code class="language-plaintext highlighter-rouge">0011</code> keeps repeating forever. Since, only finite number of bits are available, it cannot store the number accurately.</p>
+
+<p>It uses this fully stored format in computing the sum with other floating-point numbers, some of which cannot be represented accurately themselves. So, the problem is not just with the <code class="language-plaintext highlighter-rouge">0.1 + 0.2 !== 0.3</code>. There are other examples as well, <code class="language-plaintext highlighter-rouge">0.1 + 0.7 !== 0.8</code>, <code class="language-plaintext highlighter-rouge">0.8 + 0.9 !== 1.7</code>, <code class="language-plaintext highlighter-rouge">0.3 + 0.6 !== 0.9</code>, <code class="language-plaintext highlighter-rouge">0.21 + 0.7 !== 0.91</code> which is in no way an exhaustive list because there are way too many of them to exhaust so easily. It is like, <code class="language-plaintext highlighter-rouge">2/3 + 1/3 = 1</code>, but in decimal it is, <code class="language-plaintext highlighter-rouge">0.666... + 0.333... = 0.999...</code>. It will always be closer to <code class="language-plaintext highlighter-rouge">1</code> but never equal to <code class="language-plaintext highlighter-rouge">1</code>.</p>
+
+<p>In order to safely deal with money, the numbers are operated on as integers and then the end result is divided by <code class="language-plaintext highlighter-rouge">100</code>. Or, we can check the equality this way: <code class="language-plaintext highlighter-rouge">(0.1 + 0.2).toFixed(2) === 0.3.toFixed(2)</code>. In financial computation, the result is almost always expected to be upto two places after the decimal point. In scientific computation, the equality is sometimes replaced by <code class="language-plaintext highlighter-rouge">(a - b) &lt;</code> ε. Where, ε is the smallest number that can be tolerated by the application. There is a branch of Mathematics called Numerical Analysis that deals with the inaccuracies of floating-point numbers to minimize errors in more complex scientific and mathematical applications.</p>
+
+<p>Hope this gives a better picture of the challenges that engineers and computer scientists go through in keeping our money safe and researchers happy in a system where reliance on a computer has become almost impossible to avoid.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2018/why-01-and-02-dont-add-up-to-03/';
+        this.page.identifier = '2018-10-13 04:09:34';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>

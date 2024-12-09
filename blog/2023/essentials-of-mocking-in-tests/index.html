@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Essentials of mocking in tests</title>
+    <meta name="description" content="It is definitely satisfying to see the code you’ve written is implementing something working the way you imagined it. However, when you are ready to commit i...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2023/essentials-of-mocking-in-tests/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">Essentials of mocking in tests</h1>
+      <p class="post-meta">Sep 18, 2023</p>
+    </header>
+
+    <div class="post-content">
+      <p>It is definitely satisfying to see the code you’ve written is implementing something working the way you imagined it. However, when you are ready to commit it and create a pull request for those changes you realize it might break the CI because of your code not being covered by unit tests. So, you go about writing unit tests. It is easy enough if your code doesn’t have any dependencies on other libraries, you can change your inputs and get predictable outputs for it. But, when there are dependencies, it is not always the case to get predictable outputs. That’s when writing unit tests might stumble you in the development process. The problem becomes more clear when your dependency is a HTTP request making an API call or a function that does cryptography. Consider the following example:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">getFuelPrices</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">response</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetch</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://api.fuelprices.com/all</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>You can write a unit test by calling this function in your test and asserting for whatever response it gives back.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Check fuel price response</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">fuelPrices</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">getFuelPrices</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">fuelPrices</span><span class="p">,</span> <span class="dl">'</span><span class="s1">{"gasoline":"$5.3","diesel":"$3.1"}</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>Firstly, this is a very naive approach because the prices keep changing. One way is to have placeholder for the prices in the assertion. However, when testing this particular function individually, it is not necessary to involve an actual API call. The tests would run slowly and if there is a connection problem with the API, it would throw off the assertions. There is benefit in testing the actual API as well but, those kind of tests belong to a separate category which is not in scope of this discussion.</p>
+
+<p>Alternatively, an approach that has gained wide recognition is to mock the original API call such that the actual API is never called. Instead the actual API call’s reference is replaced by a function that mocks how the actual function would have responded without sending the request over the network. This is how it can be done:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">fetch</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="na">json</span><span class="p">:</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="dl">'</span><span class="s1">{"gasoline":"$5.3","diesel":"$3.1"}</span><span class="dl">'</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Check fuel price response</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">fuelPrices</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">getFuelPrices</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">fuelPrices</span><span class="p">,</span> <span class="dl">'</span><span class="s1">{"gasoline":"$5.3","diesel":"$3.1"}</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>In Javascript, since functions are first class objects, it is possible to change the reference of fetch function to another function for setting up the mock like above. Since tests run separately, it won’t affect <code class="language-plaintext highlighter-rouge">fetch</code>’s original reference in actual runtime. But, it is a common pattern to restore the mock once the test has run:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">originalFetch</span> <span class="o">=</span> <span class="nx">fetch</span><span class="p">;</span>
+<span class="nx">fetch</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="na">json</span><span class="p">:</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="dl">'</span><span class="s1">{"gasoline":"$5.3","diesel":"$3.1"}</span><span class="dl">'</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">Check fuel price response</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">fuelPrices</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">getFuelPrices</span><span class="p">();</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">fuelPrices</span><span class="p">,</span> <span class="dl">'</span><span class="s1">{"gasoline":"$5.3","diesel":"$3.1"}</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">fetch</span> <span class="o">=</span> <span class="nx">originalFetch</span><span class="p">;</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>Mocks can offer additional capabilities. In order to see that, we can generalize the way mock is created and set up:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">mock</span> <span class="o">=</span> <span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">myFn</span> <span class="o">=</span> <span class="p">(...</span><span class="nx">param</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fn</span><span class="p">(...</span><span class="nx">param</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> <span class="nx">myFn</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>It allows passing a custom function as an argument and then it returns a function that accepts arguments the way the original function would have using the rest parameters and passes that as arguments to the custom function while calling and returning the custom function. The returned function will get executed only when the mock function is called which happens when the test is run. For an async version, the returned function is specified with an async keyword when the passed in custom function returns a promise.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">mockAsync</span> <span class="o">=</span> <span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">myFn</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(...</span><span class="nx">param</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fn</span><span class="p">(...</span><span class="nx">param</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">myFn</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We can now use this to assign the custom mock function before the test.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">fetch</span> <span class="o">=</span> <span class="nx">mockAsync</span><span class="p">(</span><span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">({</span>
+        <span class="na">json</span><span class="p">:</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="dl">'</span><span class="s1">{"gasoline":"$5.3","diesel":"$3.1"}</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">)</span></code></pre></figure>
+
+<p>To see and build other capabilities of mocking, lets try with another example.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">getDaysLeft</span> <span class="o">=</span> <span class="p">(</span><span class="nx">futureDate</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">futureTime</span> <span class="o">=</span> <span class="p">((</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">futureDate</span><span class="p">))).</span><span class="nx">getTime</span><span class="p">();</span>
+  <span class="k">return</span> <span class="p">(</span><span class="nx">futureTime</span> <span class="o">-</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">24</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">getDaysLeft</span><span class="p">(</span><span class="dl">'</span><span class="s1">12/2/2023</span><span class="dl">'</span><span class="p">));</span> <span class="c1">// 74.43248821759259 at the time of writing </span></code></pre></figure>
+
+<p>It is not possible for the current date to be the same every time the test is run. So, we can mock <code class="language-plaintext highlighter-rouge">Date.now</code> to return a constant date. Another option is, it may be sufficient to see if <code class="language-plaintext highlighter-rouge">Date.now</code> was called. This is when mocks offer an additional capability of spying. To enable that we can modify the mock implementation:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">mock</span> <span class="o">=</span> <span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">called</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">myFn</span> <span class="o">=</span> <span class="p">(...</span><span class="nx">param</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">called</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="nx">myFn</span><span class="p">.</span><span class="nx">called</span> <span class="o">=</span> <span class="nx">called</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">fn</span><span class="p">(...</span><span class="nx">param</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> <span class="nx">myFn</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Since functions are essentially objects in Javascript, we can add additional properties and it will still have the qualities of a function. So we can add a new property <code class="language-plaintext highlighter-rouge">called</code> to <code class="language-plaintext highlighter-rouge">myFn</code> and assign the private variable <code class="language-plaintext highlighter-rouge">called</code> in the closure to it. When we write the test, we can assign the mock to <code class="language-plaintext highlighter-rouge">Date.now</code> and pass in a custom function.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">originalDateNow</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">;</span>
+<span class="nb">Date</span><span class="p">.</span><span class="nx">now</span> <span class="o">=</span> <span class="nx">mock</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="dl">'</span><span class="s1">9/18/2023</span><span class="dl">'</span><span class="p">)).</span><span class="nx">getTime</span><span class="p">());</span>
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">getDaysLeft</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">getDaysLeft</span><span class="p">(</span><span class="dl">'</span><span class="s1">12/2/2023</span><span class="dl">'</span><span class="p">)),</span> <span class="mi">74</span><span class="p">);</span>
+  <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">.</span><span class="nx">called</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>By being able to assert how many times the function is called, it is also possible to know whether the function was at all. It enough to actually check if the number of times the function is greater than <code class="language-plaintext highlighter-rouge">0</code> and see if it is <code class="language-plaintext highlighter-rouge">true</code>.</p>
+
+<p>The last capability we’ll be seeing is checking what arguments are getting passed to the mock function. We can add that easily because our returning function accepts dynamic parameters using Javascript’s <code class="language-plaintext highlighter-rouge">Rest</code> parameters.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">mock</span> <span class="o">=</span> <span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">called</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">calledWith</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="kd">let</span> <span class="nx">myFn</span> <span class="o">=</span> <span class="p">(...</span><span class="nx">param</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">called</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="nx">calledWith</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">param</span><span class="p">);</span>
+    <span class="nx">myFn</span><span class="p">.</span><span class="nx">called</span> <span class="o">=</span> <span class="nx">called</span><span class="p">;</span>
+    <span class="nx">myFn</span><span class="p">.</span><span class="nx">calledWith</span> <span class="o">=</span> <span class="nx">calledWith</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">fn</span><span class="p">(...</span><span class="nx">param</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> <span class="nx">myFn</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We just introduced one more property <code class="language-plaintext highlighter-rouge">calledWith</code> to <code class="language-plaintext highlighter-rouge">myFn</code> and a private variable <code class="language-plaintext highlighter-rouge">calledWith</code> which is an <code class="language-plaintext highlighter-rouge">Array</code>. So when the returning function gets called we push the parameters passed to it into the <code class="language-plaintext highlighter-rouge">calledWith</code> array and then assign it to <code class="language-plaintext highlighter-rouge">calledWith</code> property of <code class="language-plaintext highlighter-rouge">myFn</code>. To see this action consider this example:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">const</span> <span class="nx">isSendReminder</span> <span class="o">=</span> <span class="p">(</span><span class="nx">expiryDate</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">getDaysLeft</span><span class="p">(</span><span class="nx">expireDate</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">;</span></code></pre></figure>
+
+<p>The above function would be used to see whether a reminder message or notification needs to be sent when the current date is nearing expiry of something like say credit card. In our test, we can simply mock <code class="language-plaintext highlighter-rouge">getDaysLeft</code> itself:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getDaysLeft</span> <span class="o">=</span> <span class="nx">mock</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="mi">28</span><span class="p">);</span>
+<span class="nx">test</span><span class="p">(</span><span class="dl">'</span><span class="s1">isSendReminder</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">isSendReminder</span><span class="p">(</span><span class="dl">'</span><span class="s1">10/14/2023</span><span class="dl">'</span><span class="p">),</span> <span class="kc">true</span><span class="p">);</span>
+  <span class="nx">assert</span><span class="p">.</span><span class="nx">deepEqual</span><span class="p">(</span><span class="nx">getDaysLeft</span><span class="p">.</span><span class="nx">calledWith</span><span class="p">,</span> <span class="p">[[</span><span class="dl">'</span><span class="s1">10/14/2023</span><span class="dl">'</span><span class="p">]]);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>So the property <code class="language-plaintext highlighter-rouge">calledWith</code> is an array and each element of it is also an array, an array of parameters passed to the mock each time it is called. It is an array of parameters because a function can be called with multiple arguments. And, <code class="language-plaintext highlighter-rouge">calledWith</code> is an array because the function being mocked can be called multiple times.</p>
+
+<p>So to summarize these are the basic capabilities of mocking in tests:</p>
+<ul>
+  <li>Replace reference of an indirectly called function with a custom function in a test that is testing a function having other dependencies.</li>
+  <li>Spy the indirectly called function to see how many times it is called and by extension whether it is called at least once or not.</li>
+  <li>Spy the indirectly called function to see whether the actual implementation is passing arguments to it as expected.</li>
+</ul>
+
+<p>Mocks do let us cheat our way out when writing writing unit tests but it saves us from troubleshooting and knowing the intricacies of every indirectly called function from a test that tests the intended function. As we saw, it was pretty straight forward to create a mocker with the capabilities listed above and thereby give us an understanding of how it works on the inside. This is anyway abstracted away from us by unit testing frameworks which offer more elaborate mocking capabilities such as mocking indirect imports and way to clear or restore mocks through before and after hooks in a test file.</p>
+
+<p>With this, hope you have enough power in writing unit tests and boast about high coverage numbers to the leadership in the Software Industry.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2023/essentials-of-mocking-in-tests/';
+        this.page.identifier = '2023-09-18 02:23:00';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>

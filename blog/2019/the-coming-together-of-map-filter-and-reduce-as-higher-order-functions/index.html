@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>The coming together of Map, Filter and Reduce as higher order functions</title>
+    <meta name="description" content="The way we deal with organizing data at a huge enterprise is by categorizing them in tables split into specific columns designated for a particular piece of ...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2019/the-coming-together-of-map-filter-and-reduce-as-higher-order-functions/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">The coming together of Map, Filter and Reduce as higher order functions</h1>
+      <p class="post-meta">Feb 2, 2019</p>
+    </header>
+
+    <div class="post-content">
+      <p>The way we deal with organizing data at a huge enterprise is by categorizing them in tables split into specific columns designated for a particular piece of data. For instance, data about purchases made by their customers may be organized in a table as follows:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Product ID</th>
+      <th style="text-align: center">Name</th>
+      <th style="text-align: center">Manufacturer</th>
+      <th style="text-align: center">Price</th>
+      <th style="text-align: center">Quantity</th>
+      <th style="text-align: center">Customer ID</th>
+      <th style="text-align: center">Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">454353</td>
+      <td style="text-align: center">GPS</td>
+      <td style="text-align: center">Garmin</td>
+      <td style="text-align: center">59.99</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">56456456</td>
+      <td style="text-align: center">12-01-2018</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">904905</td>
+      <td style="text-align: center">Smartphone</td>
+      <td style="text-align: center">Apple</td>
+      <td style="text-align: center">899.99</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">98292340</td>
+      <td style="text-align: center">11-04-2018</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">902343</td>
+      <td style="text-align: center">Camera</td>
+      <td style="text-align: center">Canon</td>
+      <td style="text-align: center">299.99</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">23423423</td>
+      <td style="text-align: center">12-20-2018</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">234233</td>
+      <td style="text-align: center">Smartphone</td>
+      <td style="text-align: center">Google</td>
+      <td style="text-align: center">799.99</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">34324213</td>
+      <td style="text-align: center">11-18-2018</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">123123</td>
+      <td style="text-align: center">Smartphone</td>
+      <td style="text-align: center">Apple</td>
+      <td style="text-align: center">999.99</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">21312321</td>
+      <td style="text-align: center">10-05-2018</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>It is an important requirement to store this data and keep it organized. But, a more practical requirement is to derive some meaning out this vast rows of data. It could be, how many smartphones Apple sold in the fourth quarter? or, what was the base price they sold at? So, from a table of so many rows and columns, we need to derive this information from specific rows and columns and combine them into one result. This can be done by selecting, filtering and aggregating, features that are available in spreadsheets or by scripting queries offered by databases which also stores this data.</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">select</span> <span class="k">min</span><span class="p">(</span><span class="n">price</span><span class="p">)</span> <span class="k">from</span> <span class="n">purchases</span> <span class="k">where</span> <span class="n">manufacturer</span> <span class="o">=</span> <span class="nv">"Apple"</span></code></pre></figure>
+
+<p>This can also be accomplished within the realms of functional programming through the concepts of <em>Map</em>, <em>Filter</em> and <em>Reduce</em>. This could very well be accomplished imperatively but, the approach seems cumbersome. Assuming the data is available as an <code class="language-plaintext highlighter-rouge">Array</code>,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
+    <span class="dl">"</span><span class="s2">purchases</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="dl">"</span><span class="s2">productId</span><span class="dl">"</span><span class="p">:</span> <span class="mi">454353</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">name</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">GPS</span><span class="dl">"</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">manufacturer</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Garmin</span><span class="dl">"</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">price</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">59.99</span><span class="dl">"</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">quantity</span><span class="dl">"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">customerId</span><span class="dl">"</span><span class="p">:</span> <span class="mi">56456456</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">date</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">12-01-2018</span><span class="dl">"</span>
+        <span class="p">},</span>
+        <span class="p">...</span>
+        <span class="p">{</span>
+            <span class="dl">"</span><span class="s2">productId</span><span class="dl">"</span><span class="p">:</span> <span class="mi">123123</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">name</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Smartphone</span><span class="dl">"</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">manufacturer</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Apple</span><span class="dl">"</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">price</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">999.99</span><span class="dl">"</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">quantity</span><span class="dl">"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">customerId</span><span class="dl">"</span><span class="p">:</span> <span class="mi">21312321</span><span class="p">,</span>
+            <span class="dl">"</span><span class="s2">date</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">10-05-2018</span><span class="dl">"</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>we can find the minimum price that Apple sold at,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">purchases</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">purchases</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">manufacturer</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">Apple</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="nx">min</span> <span class="o">=</span> <span class="nx">purchases</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">price</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">purchases</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">].</span><span class="nx">price</span> <span class="o">&lt;</span> <span class="nx">min</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">min</span> <span class="o">=</span> <span class="nx">purchases</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">].</span><span class="nx">price</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="nx">min</span><span class="p">;</span></code></pre></figure>
+
+<p>Now, let’s discuss <em>Map</em>, <em>Reduce</em> and <em>Filter</em> individually, so that we can apply them to achieve the same result.</p>
+
+<h4 id="map">Map</h4>
+<p>In JavaScript, the language of choice in the article, <em>Map</em> is a method of the <code class="language-plaintext highlighter-rouge">Array</code> object. It’s syntax is specified as:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">newArray</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">[,</span> <span class="nx">index</span><span class="p">[,</span> <span class="nx">array</span><span class="p">]])</span> <span class="p">{</span>
+    <span class="c1">// Return element for newArray</span>
+<span class="p">}[,</span> <span class="nx">thisArg</span><span class="p">])</span></code></pre></figure>
+
+<p>It creates a new array using the results returned from the <code class="language-plaintext highlighter-rouge">callback</code> function which operates on the original array <code class="language-plaintext highlighter-rouge">arr</code>. In our example, it can be used to generate a new array containing only the prices.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">purchases</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">currentVal</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">currentVal</span><span class="p">.</span><span class="nx">price</span><span class="p">)</span> <span class="c1">// ['59.99', ..., '999.99']</span></code></pre></figure>
+
+<p>This is how it can be implemented:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">map</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">callback</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">array</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Here, it is implemented as a standalone function which accepts the array as one of its arguments and a function passed as an argument that should accept 3 parameters, the current value, the index and the array itself. It stores the results of the callback function when called, in a new array thereby, keeping the contents of the original array undisturbed.</p>
+
+<h4 id="filter">Filter</h4>
+<p>Filter’s syntax is specified as:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">newArray</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">callback</span><span class="p">(</span><span class="nx">element</span><span class="p">[,</span> <span class="nx">index</span><span class="p">[,</span> <span class="nx">array</span><span class="p">]])[,</span> <span class="nx">thisArg</span><span class="p">])</span></code></pre></figure>
+
+<p>Again it creates a new array but, they will contain only items which pass the test of the callback function. It should return a <code class="language-plaintext highlighter-rouge">Boolean</code>. In our example, it can be used to filter only those purchases who manufacturer is Apple.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">purchases</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">element</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">element</span><span class="p">.</span><span class="nx">manufacturer</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">Apple</span><span class="dl">'</span><span class="p">);</span> <span class="c1">//[{"productId": 904905, "manufacturer": "Apple", ....}, {"productId": 123123, "manufacturer": "Apple",....}]</span></code></pre></figure>
+
+<p>This is how it can be implemented:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">filter</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">callback</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">array</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">array</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This time it only stores results in a new array only if the callback function after operating on each element, returns <code class="language-plaintext highlighter-rouge">true</code>.</p>
+
+<h4 id="reduce">Reduce</h4>
+<p>Reduce’s syntax is specified as:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">newArray</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="nx">callback</span><span class="p">(</span><span class="nx">accumulator</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">,</span> <span class="nx">currentIndex</span><span class="p">,</span> <span class="nx">array</span><span class="p">)[,</span> <span class="nx">initialValue</span><span class="p">])</span></code></pre></figure>
+
+<p>The callback function is a reducer function that operates on each individual element of the array but, produced a single value result. The reducer’s returned value is assigned to the accumulator which is remembered for the next iteration and is updated each time we operate on the array and when we reach the end, it becomes the final returned value. In our example, it can be used to find the minimum price of the purchased items,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">purchases</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">accumulator</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">accumulator</span><span class="p">.</span><span class="nx">price</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">price</span><span class="p">),</span> <span class="nb">Number</span><span class="p">.</span><span class="nx">MAX_VALUE</span><span class="p">);</span> <span class="c1">// 599.99</span></code></pre></figure>
+
+<p>This is how it can be implemented:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">reduce</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">initialValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">initialValue</span> <span class="o">||</span> <span class="nx">array</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">arr</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">array</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>The result that we end up returning was actually the accumulator in every iteration that the reducer function gets called.</p>
+
+<p>They are higher-order functions because each of them accept a function as an argument or parameter because functions are first class objects in JavaScript. If we put together all the three, we can determine the base price at which Apple sold.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">purchases</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">element</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">element</span><span class="p">.</span><span class="nx">manufacturer</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">Apple</span><span class="dl">'</span><span class="p">)</span>
+<span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">currentVal</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">currentVal</span><span class="p">.</span><span class="nx">price</span><span class="p">)</span>
+<span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">accumulator</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">accumulator</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">))</span> <span class="c1">// 899.99</span></code></pre></figure>
+
+<p>It is less verbose than the imperative method we saw earlier and clearly much easier to understand and similar in approach to queries offered by databases. We could argue that the imperative method is better in terms of time because there is only one <code class="language-plaintext highlighter-rouge">for</code> loop giving it linear time complexity. Even though the <em>Map/Filter/Reduce</em> approach interally ends up looping multiple times, we can make a case that they are not executed with one inside the other and still continues to have linear time complexity because they are executed one after the other. And, it is less verbose offering better maintanability, avoiding writing completely different implementations for deriving some other meaningful metrics that we might be interested in.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2019/the-coming-together-of-map-filter-and-reduce-as-higher-order-functions/';
+        this.page.identifier = '2019-02-02 16:49:56';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>

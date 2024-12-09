@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Distilling the essence of async tasks in Javascript</title>
+    <meta name="description" content="One of the things you have deal with when migrating to node.js from other server side platforms is code that executes asynchronously. What do I mean by async...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2016/distilling-the-essence-of-async-tasks-in-javascript/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">Distilling the essence of async tasks in Javascript</h1>
+      <p class="post-meta">May 21, 2016</p>
+    </header>
+
+    <div class="post-content">
+      <p>One of the things you have deal with when migrating to <code class="language-plaintext highlighter-rouge">node.js</code> from other server side platforms is code that executes asynchronously. What do I mean by asynchronous? When reading a file or making a request over a network we call a function and after the fetching of the file or completion of request, it is handled in a callback function passed as a parameter to the function. Here is an example:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://raghavpages.github.io</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Status: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">res</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">error</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Error:</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>This is pretty straight forward for one request. However, if there is a need to make another request because your final result depended on the both the requests, you would have to do something like:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://raghavpages.github.io</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">res1</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://raghavpages.github.io/about</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">res2</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Status 1: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">res1</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">);</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Status 2: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">res2</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">}).</span><span class="nx">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">error</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Error:</span><span class="dl">'</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>The code already seems hard to follow and becomes harder if you throw in your logic for each request. Imagine if you have to make multiple such requests, your code would start resembling a pyramid pointing to the right of your screen or the Hogwarts Stairways.</p>
+
+<p>There are many <code class="language-plaintext highlighter-rouge">async</code> libraries that help you work with the above mentioned use case. I plan to show how they are implemented and thereby ascertain if it makes sense to use them.</p>
+
+<p>As a example, consider two tasks. They are simple <code class="language-plaintext highlighter-rouge">setTimeout</code> functions. But, they help simulate time taken to complete a call in a tangible manner.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">task1</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">2000</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">},</span> <span class="mi">2000</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">task2</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">1000</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Now if we were to call both of them and do something after both of them complete, we would have to call one task inside another task and do that something inside the former’s task. Example:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">task1</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">2000</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">task2</span><span class="p">();</span>
+  <span class="p">},</span> <span class="mi">2000</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">task2</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">1000</span><span class="dl">'</span><span class="p">);</span>
+    <span class="c1">// Do something you want to do</span>
+  <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This seems less scalable because we may sometimes want <code class="language-plaintext highlighter-rouge">task2</code> to complete before <code class="language-plaintext highlighter-rouge">task1</code> or call both of them so that the faster one completes while the slower one is executing and after the slower one is done, do something. The first one alludes to a serial type of calling and second alludes to a parallel type of calling. We can’t achieve them by constantly changing the implementation of the original functions.</p>
+
+<p>Let us look at serial calling first and implement it. So, we have two tasks and we want them to be called one after another and do something after the last one is complete. We can write a function that accepts the two tasks as an array and a callback to do something after the tasks are complete. This is the boilerplate of such a function:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">asyncSeries</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span></code></pre></figure>
+
+<p>So, we may have to iterate over the tasks and pass the upcoming task in the callback of the previous task so that it executes after the previous task is complete. So, we have to rewrite our tasks like this:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">task1</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">2000</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">callback</span><span class="p">();</span>
+  <span class="p">},</span> <span class="mi">2000</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">task2</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">1000</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">callback</span><span class="p">();</span>
+  <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Notice that each task now accepts a <code class="language-plaintext highlighter-rouge">callback</code> and is called after the asynchronous call is done. Now, we can proceed with the implementation of <code class="language-plaintext highlighter-rouge">asyncSeries</code>. This is how it looks:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">asyncSeries</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">task</span> <span class="o">=</span> <span class="nx">tasks</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">task</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// check if any tasks are left</span>
+    <span class="nx">task</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">asyncSeries</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span> <span class="c1">// call main function again in the callback of the task</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">callback</span><span class="p">();</span> <span class="c1">// call the final callback after the tasks are complete (base case)</span>
+  <span class="p">}</span>  
+<span class="p">}</span></code></pre></figure>
+
+<p>Now, we can make use of the above function with the above created tasks.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="nx">task1</span><span class="p">,</span> <span class="nx">task2</span><span class="p">];</span>
+
+<span class="nx">asyncSeries</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">done</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>Let us see parallel calling. It also has the same boiler plate. Accepts tasks as an array and a callback after the tasks are complete.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">asyncParallel</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span></code></pre></figure>
+
+<p>In case, of parallel, we would like to call both the tasks without waiting for one of them to complete. But, we still need to keep track of when all the tasks are complete so that we can do something after the tasks are done. Such an implementation would look like:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">asyncParallel</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">total</span> <span class="o">=</span> <span class="nx">tasks</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">task</span> <span class="o">=</span> <span class="nx">tasks</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+    <span class="nx">task</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">cnt</span> <span class="o">+=</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// keep track when each task is complete</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">cnt</span> <span class="o">===</span> <span class="nx">total</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">callback</span><span class="p">();</span> <span class="c1">// when all the tasks are done call the final callback</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>It is called the same way as <code class="language-plaintext highlighter-rouge">asyncSeries</code>:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">asyncParallel</span><span class="p">(</span><span class="nx">tasks</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">done</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>Hope this gives you a better idea before you jump onto an <code class="language-plaintext highlighter-rouge">asnyc</code> library next time. This was a rudimentary implementation which tried to cover the concept. Most <code class="language-plaintext highlighter-rouge">async</code> libraries could be similar and have more features that would pass the results from one task to the other, aggregate all the results and make them available in the final callback, error handling by calling the final callback when one of tasks fail etc. Have a look at them and use which one suits best for your use case.</p>
+
+<p>Congratulations if you have reached until this point in the article. One thing notable about <code class="language-plaintext highlighter-rouge">asyncSeries</code> is the recursive call which is suboptimal in <code class="language-plaintext highlighter-rouge">ECMAScript 5</code>. With the maturity of <code class="language-plaintext highlighter-rouge">Javascript</code> and release of improved versions of <code class="language-plaintext highlighter-rouge">ECMAScript</code>, using natively supported <code class="language-plaintext highlighter-rouge">promises</code> would be wiser than choosing to import another library.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2016/distilling-the-essence-of-async-tasks-in-javascript/';
+        this.page.identifier = '2016-05-21 08:45:28';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>

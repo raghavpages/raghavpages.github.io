@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Using iterators with arrays</title>
+    <meta name="description" content="When dealing with objects that are stored as a collection using different data structures, popular languages provide a way to process each element of the col...">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="https://raghavpages.github.io/blog/2016/using-iterators-with-arrays/">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?" />
+    <link rel="alternate" type="application/rss+xml" title="raghavpages" href="https://raghavpages.github.io/feed.xml" />
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+  </head>
+
+  <body>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-78703207-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    <main>
+      <header class="site-header">
+  <div class="container">
+    <h1><a href="/"><img src="/images/blog2.png" alt="raghavpages"></a></h1>
+
+    <button type="button" class="sliding-panel-button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="navbar sliding-panel-content">
+      <ul>
+        
+          <li><a href="/about" title="About">About</a></li>
+        
+          <li><a href="/blog" title="Blog">Blog</a></li>
+        
+        <li><a href="/feed.xml" target="_blank"><i class="icon icon-feed"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="sliding-panel-fade-screen"></div>
+
+
+      <div class="container">
+        <article role="article" class="post">
+
+  <div class="card">
+    <header class="post-header">
+      <h1 class="post-title">Using iterators with arrays</h1>
+      <p class="post-meta">Dec 6, 2016</p>
+    </header>
+
+    <div class="post-content">
+      <p>When dealing with objects that are stored as a collection using different data structures, popular languages provide a way to process each element of the collection by abstracting the underlying implementation of the data structure. In <code class="language-plaintext highlighter-rouge">C++</code> and <code class="language-plaintext highlighter-rouge">Java</code> they are called <code class="language-plaintext highlighter-rouge">iterators</code>. With the introduction of <code class="language-plaintext highlighter-rouge">Map</code>, <code class="language-plaintext highlighter-rouge">Set</code> and other data structures in <code class="language-plaintext highlighter-rouge">ES6</code>, <code class="language-plaintext highlighter-rouge">iterators</code> have found their way into <code class="language-plaintext highlighter-rouge">Javascript</code> as well. It has standard methods that can be used for any type of collection without knowledge of how the elements are stored.</p>
+
+<p>In the <code class="language-plaintext highlighter-rouge">ES2015</code> specification, the Array object provides 3 methods that returns an object following the iterator pattern similar to that found in <code class="language-plaintext highlighter-rouge">C++</code> and <code class="language-plaintext highlighter-rouge">Java</code>. One of them just lets us access the value of each element in the array, <code class="language-plaintext highlighter-rouge">Array.prototype.values</code>. This means it can used directly on a variable defined as an <code class="language-plaintext highlighter-rouge">Array</code>.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="dl">'</span><span class="s1">h</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">e</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">l</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">l</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">o</span><span class="dl">'</span><span class="p">];</span>
+<span class="kd">var</span> <span class="nx">iterator</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">values</span><span class="p">();</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// h</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// e</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// l</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// l</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// o</span></code></pre></figure>
+
+<p>The collection (<code class="language-plaintext highlighter-rouge">Array</code> in this case) has a method that returns an iterator object which has a method called <code class="language-plaintext highlighter-rouge">next()</code> that advances by one index in the collection each time it is called. The value at each index can be accessed using the property <code class="language-plaintext highlighter-rouge">value</code>. Also, there is another property that lets us know whether we’ve reached till the end of the collection, <code class="language-plaintext highlighter-rouge">done</code>. So, after the all the <code class="language-plaintext highlighter-rouge">console.log</code> statements in above example, we can access done on next to indicate that there are no more elements to iterate over.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">it</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">done</span><span class="p">);</span> <span class="c1">// true</span></code></pre></figure>
+
+<p>We can write a <code class="language-plaintext highlighter-rouge">function</code> that provides this behavior. We just need to pass the array as an argument. We can call this function <code class="language-plaintext highlighter-rouge">createIterator</code>.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">createIterator</span><span class="p">(</span><span class="nx">arr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="na">next</span><span class="p">:</span> <span class="kd">function</span> <span class="nx">next</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="na">value</span><span class="p">:</span> <span class="nx">arr</span><span class="p">[</span><span class="nx">i</span><span class="o">++</span><span class="p">],</span>
+                    <span class="na">done</span><span class="p">:</span> <span class="kc">false</span>
+                <span class="p">};</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="na">done</span><span class="p">:</span> <span class="kc">true</span>
+            <span class="p">};</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">iterator</span> <span class="o">=</span> <span class="nx">createIterator</span><span class="p">(</span><span class="nx">arr</span><span class="p">);</span></code></pre></figure>
+
+<p>The function needs to maintain state of the index which is available in the returned object after it is initialized and is incremented each time <code class="language-plaintext highlighter-rouge">next</code> is called. When the end of the array is reached, it just has to return one <code class="language-plaintext highlighter-rouge">Boolean</code> <code class="language-plaintext highlighter-rouge">done</code> property with value <code class="language-plaintext highlighter-rouge">true</code>.</p>
+
+<p>The other methods specified under <code class="language-plaintext highlighter-rouge">Array</code> that returns an iterator object are <code class="language-plaintext highlighter-rouge">entries</code> and <code class="language-plaintext highlighter-rouge">keys</code>. The method <code class="language-plaintext highlighter-rouge">entries</code> return key/value pairs of each element when the <code class="language-plaintext highlighter-rouge">value</code> property is accessed while <code class="language-plaintext highlighter-rouge">keys</code> return just the indices.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">itEntries</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">entries</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">itKeys</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">keys</span><span class="p">();</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">itEntries</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// [0, 'h']</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">itKeys</span><span class="p">.</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">);</span> <span class="c1">// 0</span></code></pre></figure>
+
+<p>In <code class="language-plaintext highlighter-rouge">node.js</code> until version 7, the current version at the time the article was being written, <code class="language-plaintext highlighter-rouge">Array.prototype.values</code> is not supported.</p>
+
+<p>However, <code class="language-plaintext highlighter-rouge">Arrays</code> are <strong>iterable</strong>. This means it defines its own iteration behavior such that its values can be looped over using <code class="language-plaintext highlighter-rouge">for..of</code>. This is again part of <code class="language-plaintext highlighter-rouge">ES2015</code> that provides a way to loop over <strong>iterable</strong> objects. This means that the <code class="language-plaintext highlighter-rouge">Array</code> has a property called <code class="language-plaintext highlighter-rouge">Symbol.iterator</code> as one of its keys that implements an <code class="language-plaintext highlighter-rouge">iterator</code>. It is a built-in <code class="language-plaintext highlighter-rouge">Symbol</code> exposed post <code class="language-plaintext highlighter-rouge">ES5</code>. So, even though <code class="language-plaintext highlighter-rouge">Array.prototype.values</code> is not supported, we can use the <code class="language-plaintext highlighter-rouge">createIterator</code> described above or use the built-in <code class="language-plaintext highlighter-rouge">Symbol.iterator</code> to make use the concept of iterators.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="dl">'</span><span class="s1">h</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">e</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">l</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">l</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">o</span><span class="dl">'</span><span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">iterator</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">[</span><span class="nb">Symbol</span><span class="p">.</span><span class="nx">iterator</span><span class="p">]();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">());</span> <span class="c1">// {value: 'h', done: false}</span></code></pre></figure>
+
+<p>There are other Javascript built-in types as well other than arrays that have default iteration behavior such as <code class="language-plaintext highlighter-rouge">Map</code>, <code class="language-plaintext highlighter-rouge">Set</code>, <code class="language-plaintext highlighter-rouge">String</code> to name a few. Even they have <code class="language-plaintext highlighter-rouge">Symbol.iterator</code> property and methods that return an iterator object.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Java</code> implements collections under the collection framework part of Java utils, <code class="language-plaintext highlighter-rouge">java.util.Collection</code>. In <code class="language-plaintext highlighter-rouge">C++</code>, they are called <strong>Containers</strong> and are part of the standard template library.</p>
+
+<p>To learn more about <code class="language-plaintext highlighter-rouge">Symbol</code>, use this <a href="https://hacks.mozilla.org/2015/06/es6-in-depth-symbols/">reference</a>.</p>
+
+    </div>
+
+    
+<hr>
+
+<aside id="comments" class="disqus">
+  <div class="container">
+    <h3><i class="icon icon-comments-o"></i> Comments</h3>
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = 'https://raghavpages.github.io/blog/2016/using-iterators-with-arrays/';
+        this.page.identifier = '2016-12-06 15:33:39';
+      };
+      (function() {
+        var d = document,
+        s = d.createElement('script');
+        s.src = '//raghavgujjar.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  </div>
+</aside>
+
+  </div>
+
+</article>
+
+      </div>
+
+      <footer class="site-footer">
+  <div class="container">
+    <ul class="social">
+  <li><a href="https://github.com/raghav-coding" target="_blank"><i class="icon icon-github"></i></a></li>
+  <li><a href="https://twitter.com/raghav_social" target="_blank"><i class="icon icon-twitter"></i></a></li>
+  <li><a href="https://docs.google.com/forms/d/1kHrmM-W-ICc6elHCWZIIK3tH-Be0McAuGFGCpl23WNg/viewform" target="_blank"><i class="icon icon-envelop"></i></a></li>
+</ul>
+
+    <p class="txt-medium-gray">
+      <small>&copy;2024 All rights reserved. Made with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a></small>
+    </p>
+  </div>
+</footer>
+
+
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('.sliding-panel-button,.sliding-panel-fade-screen,.sliding-panel-close').on('click touchstart',function (e) {
+          $('.sliding-panel-content,.sliding-panel-fade-screen').toggleClass('is-visible');
+          e.preventDefault();
+        });
+      });
+      </script>
+    </main>
+  </body>
+</html>
