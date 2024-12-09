@@ -1,3 +1,3 @@
-# raghavgujjar
+# raghavpages
 
 Personal Website of Raghavendra
