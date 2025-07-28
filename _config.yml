@@ -1,0 +1,56 @@
+title: raghavpages
+description: A modern blog reflecting my thoughts and experiences
+url: "https://raghavpages.github.io"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Pagination
+paginate: 6
+paginate_path: "/blog/page:num/"
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /blog/:year/:month/:day/:title/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Raghav"
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+# Social links (optional)
+social:
+  twitter: raghav_social
+  github: raghav-coding
+
+# Disqus comments
+# Replace 'your-disqus-shortname' with your actual Disqus site shortname
+# You can find this in your Disqus admin panel
+disqus_site_shortname: raghavgujjar
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.locks
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md

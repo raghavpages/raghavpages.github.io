@@ -1,0 +1,68 @@
+---
+layout: default
+---
+
+<article class="post-article">
+    <!-- Post Header -->
+    <header class="post-header">
+        <div class="container">
+            <div class="post-header-content">
+                {% if page.category %}
+                <span class="post-category category-{{ page.category | downcase }}">{{ page.category }}</span>
+                {% endif %}
+                <h1 class="post-title">{{ page.title }}</h1>
+                <div class="post-meta">
+                    <div class="meta-item">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-4 8l4-4m0 0l-4-4m4 4H8" />
+                        </svg>
+                        <time>{{ page.date | date: "%B %d, %Y" }}</time>
+                    </div>
+                    {% if page.read_time %}
+                    <div class="meta-item">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ page.read_time }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Post Content -->
+    <div class="post-content">
+        <div class="container">
+            <div class="prose">
+                {{ content }}
+            </div>
+            
+            <!-- Post Footer -->
+            <footer class="post-footer">
+                <div class="author-info">
+                    <div class="author-avatar">
+                        <span>{{ site.title | slice: 0 }}</span>
+                    </div>
+                    <div class="author-details">
+                        <p class="author-name">{{ page.author | default: site.title }}</p>
+                        <p class="author-title">Developer & Writer</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- Comments Section -->
+            {% include comments.html %}
+            
+            <!-- Navigation -->
+            <nav class="post-navigation">
+                <a href="{{ '/blog' | relative_url }}" class="btn btn-outline">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                    </svg>
+                    Back to Blog
+                </a>
+            </nav>
+        </div>
+    </div>
+</article>
