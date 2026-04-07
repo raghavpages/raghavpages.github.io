@@ -934,7 +934,7 @@ a {
     }
   }
   
-  // Code block with language label
+  // Code blocks without language label watermark
   .language-javascript,
   .language-typescript,
   .language-html,
@@ -942,26 +942,7 @@ a {
   .language-python,
   .language-bash {
     position: relative;
-    
-    &::before {
-      content: attr(class);
-      position: absolute;
-      top: var(--space-2);
-      right: var(--space-3);
-      font-size: var(--font-size-xs);
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-    }
   }
-  
-  .language-javascript::before { content: "JS"; }
-  .language-typescript::before { content: "TS"; }
-  .language-html::before { content: "HTML"; }
-  .language-css::before { content: "CSS"; }
-  .language-python::before { content: "PY"; }
-  .language-bash::before { content: "BASH"; }
   
   // Syntax highlighting colors
   .highlight {
