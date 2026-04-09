@@ -24,7 +24,11 @@
     <script>
         // Initialize theme before page load to prevent flash
         (function() {
-            const theme = localStorage.getItem('theme') || 'light';
+            let theme = localStorage.getItem('theme');
+            if (!theme) {
+                // Defensive check in case matchMedia is not supported by a very old browser
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>

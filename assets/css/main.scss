@@ -290,6 +290,17 @@ a {
     opacity: 0.8;
   }
   
+  .logo-image {
+    transition: var(--transition);
+    
+    [data-theme="dark"] & {
+      // Note: This CSS filters the image pixels directly!
+      // 'brightness(0) invert(1)' turns all colored/black pixels in the PNG into pristine white, 
+      // leaving transparent areas alone.
+      filter: brightness(0) invert(1);
+    }
+  }
+  
   .logo-placeholder {
     width: 2.5rem;
     height: 2.5rem;
