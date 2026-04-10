@@ -4,7 +4,7 @@ title: "State transfer on the web"
 date: 2026-04-07 00:51:10
 comments: true
 description: "State transfer on the web"
-keywords: ""
+keywords: "web development, state management, state transfer, frontend architecture, cookies, localstorage, sessionstorage, http state, client-side storage, query parameters"
 categories:
 
 tags:
